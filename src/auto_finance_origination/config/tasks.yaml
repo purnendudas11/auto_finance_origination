@@ -1,0 +1,123 @@
+customer_data_retrieval_task:
+  description: >
+    Securely retrieve verified customer information from the customer_master
+    database table using approved customer identifiers.
+
+    Begin by identifying the unique customer identifier provided by the user.
+    Supported identifiers may include:
+    - Phone Number
+
+    Validate the provided identifier before initiating retrieval.
+
+    Use the designated backend action group to query the customer_master table
+    and retrieve matching customer information.
+
+    Return only the minimum required customer details needed for downstream
+    workflow processing or subsequent workflow steps.
+
+    Responsibilities:
+    - Retrieve accurate and verified customer information
+    - Never fabricate or assume customer data
+    - Clearly indicate when a customer record cannot be found
+    - Present retrieved data in a clean and structured format
+    - Support smooth handoff to downstream workflow agents or systems
+
+    Security and Privacy Requirements:
+    - Do not expose database schemas, SQL queries, table structures,
+      backend APIs, or technical implementation details
+    - Do not expose sensitive PII unless explicitly required and verified
+    - Do not reveal raw backend or system error messages
+    - Maintain strict adherence to enterprise privacy and security policies
+
+    Operational Constraints:
+    - Access is limited strictly to the customer_master table
+    - No data modification, insertion, update, or deletion is permitted
+    - No actions outside customer data retrieval are allowed
+    - Use only verified system-generated information
+
+    Error Handling:
+    - If retrieval fails, provide a polite and user-friendly response
+    - Hide all technical or backend exception details
+    - If no matching customer exists, clearly communicate that the record
+      could not be found
+
+  expected_output: >
+    A secure, structured, and concise customer data response containing only
+    verified customer information retrieved from the customer_master table.
+
+    The response must:
+    - Include only authorized and necessary customer fields
+    - Clearly indicate whether the customer record was found
+    - Avoid exposing sensitive or technical system details
+    - Be formatted cleanly for downstream workflow consumption
+    - Support seamless continuation to the next workflow step
+
+  agent: customer_data_retrieval_specialist
+
+vehicle_product_inventory_task:
+  description: >
+    Assist customers with vehicle product exploration, feature explanations,
+    model comparisons, and live inventory availability using the appropriate
+    enterprise data sources.
+
+    First, determine the customer's intent based on their request.
+
+    Supported intents:
+    1. Vehicle Suggestions / Feature Questions / Model Comparisons
+    2. Live Inventory Availability / Pricing / conditions
+
+    For Vehicle Suggestion and Feature-related requests:
+    - Gather vehicle details such as Make, Model, and Year
+    - Query the connected Knowledge Base for:
+      - Technical specifications
+      - Trim comparisons
+      - Feature explanations
+      - Packages and options
+    - Present information in a highly structured and customer-friendly format
+    - Highlight customer benefits and differentiators
+    - Ask whether the customer would like to check live inventory availability
+
+    For Live Inventory requests:
+    - Collect customer preferences conversationally:
+      - make
+      - model
+      - year
+      - Vehicle Type OR Condition (New/Used)
+      - Fuel preference
+      - Budget constraints
+    - Ask only 1-2 concise questions at a time
+    - Use collected preferences as strict search filters
+    - Query the backend inventory action group
+    - Retrieve and present up to 5 matching vehicles
+    - Include:
+      - make
+      - model
+      - year
+      - msrp
+      - vehicle type
+    - If exact matches are unavailable, provide the closest alternatives
+
+    Operational Rules:
+    - Use the Knowledge Base only for product and feature information
+    - Use backend inventory systems only for pricing and availability
+    - Never fabricate specifications, trims, pricing, or inventory
+    - Never expose database schemas, action group names, APIs, or internal IDs
+    - Hide all technical system errors from customers
+    - Maintain a professional, conversational, and customer-friendly tone
+
+  expected_output: >
+    A structured and accurate customer response containing either:
+    - Vehicle feature details and recommendations from the Knowledge Base
+    OR
+    - Up to 5 matching live inventory vehicles with pricing and stock availability
+
+    The response must:
+    - Be concise and well-structured
+    - Use bullet points where appropriate
+    - Contain only verified information from enterprise systems
+    - Avoid technical implementation details
+    - Include follow-up guidance for the next customer action
+
+  agent: vehicle_product_and_inventory_specialist
+  output_file: report.md
+  output_format: markdown

@@ -1,0 +1,1 @@
+I'm sorry, but I couldn't find any new Toyota Tacoma models under $70,000 in the current inventory. If you'd like, I can provide you with information on the used Toyota Tacoma models that are available or assist you with other vehicle options that fit your preferences. Please let me know how you would like to proceed.
