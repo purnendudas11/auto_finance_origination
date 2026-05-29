@@ -10,6 +10,9 @@ ENV DB_USER="postgres"
 ENV DB_PASSWORD="local1234"
 ENV DB_PORT=5432
 
+ENV AWS_ACCESS_KEY_ID="AKIAXAIKRCT4G3BPD7LG"
+ENV AWS_SECRET_ACCESS_KEY="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"
+
 # Install build tools for compiling dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \

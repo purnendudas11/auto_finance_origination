@@ -1,7 +1,7 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
-from src.auto_finance_origination.tools.custom_tool import CustomerAgentTool, VehicleAgentTool
+from src.auto_finance_origination.tools.custom_tool import CustomerAgentTool, VehicleAgentTool, RateAgentTool
 from crewai import LLM
 import os
 from bedrock_agentcore.runtime import BedrockAgentCoreApp
@@ -47,6 +47,15 @@ class AutoFinanceOrigination():
             verbose=True
         )
 
+    @agent
+    def pricing_calculator_specialist(self) -> Agent:
+        return Agent(
+            config=self.agents_config['pricing_calculator_specialist'], # type: ignore[index]
+            tools=[RateAgentTool()],
+            llm=llm,
+            verbose=True
+        )
+
     # To learn more about structured task outputs,
     # task dependencies, and task callbacks, check out the documentation:
     # https://docs.crewai.com/concepts/tasks#overview-of-a-task
@@ -61,6 +70,12 @@ class AutoFinanceOrigination():
         return Task(
             config=self.tasks_config['vehicle_product_inventory_task'], # type: ignore[index]
             output_file='report.md'
+        )
+
+    @task
+    def pricing_calculator_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['pricing_calculator_task'], # type: ignore[index]
         )
 
     @crew

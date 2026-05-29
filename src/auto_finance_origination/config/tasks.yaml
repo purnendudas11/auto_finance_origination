@@ -121,3 +121,40 @@ vehicle_product_inventory_task:
   agent: vehicle_product_and_inventory_specialist
   output_file: report.md
   output_format: markdown
+
+pricing_calculator_task:
+  description: >
+    Calculate monthly payment estimates for a vehicle using either Retail or Lease financing.
+
+    Steps:
+    1. Retrieve the applicable rate from the rateMaster DynamoDB table using:
+       - dealer ID
+       - financing option
+       - vehicle details
+       - term
+       - customer tier
+    2. Use the retrieved rate and total vehicle price (MSRP) to calculate the monthly payment.
+    3. For Retail financing, calculate:
+       - amountFinanced = msrp - (downPayment + tradeIn)
+       - rate = (rate/100) / 12
+       - monthlyPay = (amountFinanced * rate) / (1 - (1 + rate) ** -term)
+       - totalPay = monthlyPay * term
+    4. For Lease financing, calculate:
+       - amountFinanced = msrp - (downPayment + tradeIn)
+       - rate = (rate/100) / 12
+       - incrementedRate = 1 + rate
+       - baloonPay = msrp * 0.35
+       - monthlyPay = (incrementedRate ** (term - 1)) * (amountFinanced + (amountFinanced * rate)) - round(baloonPay) * (rate / incrementedRate ** (term - 1) - 1) / incrementedRate
+       - totalPay = monthlyPay * term
+
+    Return a clear monthly payment estimate and total payment value appropriate to the selected financing option.
+
+  expected_output: >
+    A precise financing summary that includes:
+    - financing option used (Retail or Lease)
+    - monthlyPay value
+    - totalPay value
+    - rate used for the calculation
+    - key assumptions, including down payment, trade-in, term, and MSRP
+
+  agent: pricing_calculator_specialist
