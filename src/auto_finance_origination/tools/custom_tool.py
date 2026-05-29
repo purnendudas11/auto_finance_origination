@@ -1,6 +1,7 @@
 from crewai.tools import BaseTool
 from typing import Type
 from pydantic import BaseModel, Field
+import boto3
 import psycopg2
 import os
 
@@ -41,6 +42,37 @@ class CustomerAgentTool(BaseTool):
                 cursor.close()
             if conn:
                 conn.close()
+
+class RateAgentToolInput(BaseModel):
+    query: str = Field(..., description="DynamoDB query or key lookup expression")
+    params: list = Field(default_factory=list, description="Optional query parameters")
+
+class RateAgentTool(BaseTool):
+    name: str = "RateAgentTool"
+    description: str = "Tool to retrieve rate data from DynamoDB."
+    args_schema: Type[BaseModel] = RateAgentToolInput
+
+    def _run(self, query: str, params: list = None) -> str:
+        dynamodb = boto3.resource(
+            "dynamodb",
+            region_name="us-east-1",
+            aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
+        )
+        table = dynamodb.Table("rateMaster")
+        try:
+            if query and "=" in query and not params:
+                key_name, key_value = [part.strip() for part in query.split("=", 1)]
+                key_value = key_value.strip("'\"")
+                response = table.get_item(Key={key_name: key_value})
+                items = [response.get("Item")] if response.get("Item") else []
+            else:
+                response = table.scan()
+                items = response.get("Items", [])
+            print(f"rate data retrieved from DynamoDB: {items}")
+            return str(items)
+        except Exception as e:
+            return f"Error fetching data from DynamoDB: {e}"
 
 class VehicleAgentToolInput(BaseModel):
     query: str = Field(..., description="SQL query to execute")
